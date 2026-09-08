@@ -14,8 +14,12 @@ cd "$(dirname "$0")/.."
 # Turing (RTX 20xx), Ampere (RTX 30xx), Ada (RTX 40xx), Blackwell (RTX 50xx) as SASS only: no PTX on purpose, so an
 # unsupported GPU fails fast instead of JIT-compiling for minutes. Datacenter parts (sm_80/90/100) are omitted.
 : "${CUDA_ARCHS:=75-real;86-real;89-real;120-real}"
-: "${PARALLEL:=8}"
-: "${NVCC_THREADS:=2}"
+: "${PARALLEL:=6}"
+: "${NVCC_THREADS:=1}"
+# Fused-attention contrib kernels (flash / memory-efficient attention) are for transformer LLM graphs; our exported
+# graphs use plain MatMul/Softmax. Each of their kernel files needs several GB of RAM to compile per architecture
+# and they OOM-killed an 8-way build on a 30 GB host, so they are off.
+: "${EXTRA_DEFINES:=onnxruntime_USE_FLASH_ATTENTION=OFF onnxruntime_USE_MEMORY_EFFICIENT_ATTENTION=OFF}"
 
 if [ ! -x .venv/bin/python ]; then
 	uv venv --python 3.12 .venv
@@ -31,6 +35,6 @@ export ORT_CUDA_ARCHITECTURES="$CUDA_ARCHS"
 	--use_cuda --cuda_home "$CUDA_HOME" --cudnn_home "$CUDNN_HOME" \
 	--cmake_generator Ninja --parallel "$PARALLEL" --nvcc_threads "$NVCC_THREADS" \
 	--skip_submodule_sync --skip_tests --update --build \
-	--cmake_extra_defines onnxruntime_BUILD_UNIT_TESTS=OFF "CMAKE_CUDA_ARCHITECTURES=$CUDA_ARCHS"
+	--cmake_extra_defines onnxruntime_BUILD_UNIT_TESTS=OFF "CMAKE_CUDA_ARCHITECTURES=$CUDA_ARCHS" $EXTRA_DEFINES
 
 ls -la build/Linux/Release/dist/*.whl
