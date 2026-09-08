@@ -821,6 +821,11 @@ def save_build_and_package_info(package_name, version_number, cuda_version, qnn_
 
         if cuda_version:
             f.write(f"cuda_version = '{cuda_version}'\n")
+            # Which GPU generations have native (SASS) kernels in this build. Consumers can fail fast on other GPUs
+            # instead of waiting for the driver to JIT PTX (or finding there is no PTX at all).
+            cuda_architectures = environ.get("ORT_CUDA_ARCHITECTURES")
+            if cuda_architectures:
+                f.write(f"cuda_architectures = '{cuda_architectures}'\n")
 
             # The cudart version used in building training packages in Linux.
             # It is possible to parse version.json at cuda_home in build.py, then pass in the parameter directly.
