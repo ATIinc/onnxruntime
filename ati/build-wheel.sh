@@ -31,7 +31,7 @@ export ORT_CUDA_ARCHITECTURES="$CUDA_ARCHS"
 
 .venv/bin/python tools/ci_build/build.py \
 	--build_dir build/Linux --config Release \
-	--build_wheel --wheel_name_suffix=gpu \
+	--build_wheel \
 	--use_cuda --cuda_home "$CUDA_HOME" --cudnn_home "$CUDNN_HOME" \
 	--cmake_generator Ninja --parallel "$PARALLEL" --nvcc_threads "$NVCC_THREADS" \
 	--skip_submodule_sync --skip_tests --update --build \
