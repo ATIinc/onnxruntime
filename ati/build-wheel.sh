@@ -10,6 +10,9 @@ cd "$(dirname "$0")/.."
 
 : "${ATI_LOCAL_VERSION:=+ati1}"
 : "${CUDA_HOME:=/usr/local/cuda-12.8}"
+# build.py only records the CUDA version in the wheel when the toolkit ships a version.json; pass it explicitly so
+# onnxruntime.preload_dlls() knows which pip-installed CUDA libraries to load.
+: "${CUDA_VERSION:=12.8}"
 : "${CUDNN_HOME:=/usr}"
 # Turing (RTX 20xx), Ampere (RTX 30xx), Ada (RTX 40xx), Blackwell (RTX 50xx) as SASS only: no PTX on purpose, so an
 # unsupported GPU fails fast instead of JIT-compiling for minutes. Datacenter parts (sm_80/90/100) are omitted.
@@ -32,7 +35,7 @@ export ORT_CUDA_ARCHITECTURES="$CUDA_ARCHS"
 .venv/bin/python tools/ci_build/build.py \
 	--build_dir build/Linux --config Release \
 	--build_wheel \
-	--use_cuda --cuda_home "$CUDA_HOME" --cudnn_home "$CUDNN_HOME" \
+	--use_cuda --cuda_home "$CUDA_HOME" --cuda_version "$CUDA_VERSION" --cudnn_home "$CUDNN_HOME" \
 	--cmake_generator Ninja --parallel "$PARALLEL" --nvcc_threads "$NVCC_THREADS" \
 	--skip_submodule_sync --skip_tests --update --build \
 	--cmake_extra_defines onnxruntime_BUILD_UNIT_TESTS=OFF "CMAKE_CUDA_ARCHITECTURES=$CUDA_ARCHS" $EXTRA_DEFINES
