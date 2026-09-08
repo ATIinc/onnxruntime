@@ -11,9 +11,9 @@ cd "$(dirname "$0")/.."
 : "${ATI_LOCAL_VERSION:=+ati1}"
 : "${CUDA_HOME:=/usr/local/cuda-12.8}"
 : "${CUDNN_HOME:=/usr}"
-# Turing (RTX 20xx), Ampere (RTX 30xx), Ada (RTX 40xx), Blackwell (RTX 50xx) as SASS, plus Blackwell PTX for
-# newer parts. Datacenter parts (sm_80/90/100) are deliberately omitted to keep the build time and wheel size down.
-: "${CUDA_ARCHS:=75-real;86-real;89-real;120-real;120-virtual}"
+# Turing (RTX 20xx), Ampere (RTX 30xx), Ada (RTX 40xx), Blackwell (RTX 50xx) as SASS only: no PTX on purpose, so an
+# unsupported GPU fails fast instead of JIT-compiling for minutes. Datacenter parts (sm_80/90/100) are omitted.
+: "${CUDA_ARCHS:=75-real;86-real;89-real;120-real}"
 : "${PARALLEL:=8}"
 : "${NVCC_THREADS:=2}"
 
@@ -23,6 +23,7 @@ if [ ! -x .venv/bin/python ]; then
 fi
 export PATH="$PWD/.venv/bin:$CUDA_HOME/bin:$PATH"
 export ORT_PYTHON_LOCAL_VERSION="$ATI_LOCAL_VERSION"
+export ORT_CUDA_ARCHITECTURES="$CUDA_ARCHS"
 
 .venv/bin/python tools/ci_build/build.py \
 	--build_dir build/Linux --config Release \
