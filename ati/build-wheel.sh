@@ -11,9 +11,9 @@ cd "$(dirname "$0")/.."
 : "${ATI_LOCAL_VERSION:=+ati1}"
 : "${CUDA_HOME:=/usr/local/cuda-12.8}"
 : "${CUDNN_HOME:=/usr}"
-# Every CUDA generation from Turing (7.5) through Blackwell (12.0) as SASS: RTX 20xx, A100, RTX 30xx, RTX 40xx, H100,
-# B200, RTX 50xx; plus sm_120 PTX so parts newer than 12.0 still run (JIT).
-: "${CUDA_ARCHS:=75-real;80-real;86-real;89-real;90-real;100-real;120-real;120-virtual}"
+# Turing (RTX 20xx), Ampere (RTX 30xx), Ada (RTX 40xx), Blackwell (RTX 50xx) as SASS, plus Blackwell PTX for
+# newer parts. Datacenter parts (sm_80/90/100) are deliberately omitted to keep the build time and wheel size down.
+: "${CUDA_ARCHS:=75-real;86-real;89-real;120-real;120-virtual}"
 : "${PARALLEL:=8}"
 : "${NVCC_THREADS:=2}"
 
