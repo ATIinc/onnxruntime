@@ -778,6 +778,9 @@ if nightly_build:
 
     version_number = version_number + ".dev" + build_suffix
 
+# Downstream builds (for example ATI's Blackwell-enabled wheels) mark themselves with a local version such as "+ati1".
+local_version = environ.get("ORT_PYTHON_LOCAL_VERSION") or local_version
+
 if local_version:
     version_number = version_number + local_version
 
